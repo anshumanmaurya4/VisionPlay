@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chat - Multimodal Experience</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css">
+    <style>
+        :root {
+            /* Light Mode Colors */
+            --primary-color: #7E57C2;
+            --secondary-color: #B388FF;
+            --background-color: #F5F5F7;
+            --chat-bg: #FFFFFF;
+            --user-bubble: #E1F5FE;
+            --ai-bubble: #F3E5F5;
+            --text-color: #333333;
+            --border-color: #e0e0e0;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --input-bg: #FFFFFF;
+            --tab-active-bg: #FFFFFF;
+            --card-bg: #FFFFFF;
+            --hover-color: rgba(126, 87, 194, 0.1);
+            --border-radius: 12px;
+
+            /* 3D Effect Variables */
+            --card-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+            --button-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            --input-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            --3d-depth: 20px;
+            --transition-speed: 0.3s;
+        }
+
+        /* Dark Mode Colors */
+        [data-theme="dark"] {
+            --primary-color: #B388FF;
+            --secondary-color: #7E57C2;
+            --background-color: #121212;
+            --chat-bg: #1E1E1E;
+            --user-bubble: #2C2C2C;
+            --ai-bubble: #3A224A;
+            --text-color: #E0E0E0;
+            --border-color: #333333;
+            --shadow-color: rgba(0, 0, 0, 0.5);
+            --input-bg: #2C2C2C;
+            --tab-active-bg: #2C2C2C;
+            --card-bg: #1E1E1E;
+            --hover-color: rgba(179, 136, 255, 0.2);
+
+            /* 3D Effect Variables for Dark Mode */
+            --card-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+            --button-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+            --input-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            transition: background-color 0.3s, color 0.3s, box-shadow 0.3s, transform 0.3s;
+        }
+        
+        /* Theme transition effect */
+        .theme-transition {
+            animation: theme-fade 0.5s ease;
+        }
+        
+        @keyframes theme-fade {
+            0% { opacity: 1; }
+            50% { opacity: 0.8; }
+            100% { opacity: 1; }
+        }
+        
+        /* Animation toggle support */
+        .no-animations * {
+            animation: none !important;
+            transition: none !important;
+            transform: none !important;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            perspective: 1000px; /* For 3D effects */
+        }
+
+        .app-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 20px;
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            transform: translateZ(5px); /* 3D Effect */
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        
+        .logo i {
+            transform: translateZ(8px) rotateY(0deg);
+            transition: transform 0.5s ease;
+        }
+        
+        .logo:hover i {
+            transform: translateZ(8px) rotateY(360deg);
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn-icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            padding: 0;
+            background-color: var(--primary-color);
+            color: white;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: var(--button-shadow);
+        }
+        
+        .btn-icon:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease, transform 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            box-shadow: var(--button-shadow);
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transform: translateX(-100%);
+            z-index: -1;
+        }
+        
+        .btn:hover::before {
+            animation: btn-shine 1.5s ease-out;
+        }
+        
+        @keyframes btn-shine {
+            0% {
+                transform: translateX(-100%);
+            }
+            20%, 100% {
+                transform: translateX(100%);
+            }
+        }
+
+        .btn:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(126, 87, 194, 0.4);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        /* Tabs Styling */
+        .tabs-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            transform: translateZ(5px);
+        }
+        
+        .tab {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 20px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--text-color);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .tab::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: var(--primary-color);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .tab:hover {
+            background-color: var(--hover-color);
+        }
+        
+        .tab.active {
+            background-color: var(--tab-active-bg);
+            color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .tab.active::after {
+            transform: scaleX(1);
+        }
+        
+        .tab-content {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .tab-content.hidden {
+            display: none;
+        }
+        
+        /* Chat Container */
+        .chat-container {
+            flex: 1;
+            background-color: var(--chat-bg);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 20px;
+            overflow-y: auto;
+            box-shadow: var(--card-shadow);
+            transform: translateZ(10px); /* 3D Effect */
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            min-height: 400px;
+        }
+        
+        .chat-container:hover {
+            transform: translateZ(15px) scale(1.01);
+        }
+
+        .message {
+            display: flex;
+            margin-bottom: 20px;
+            animation: fadeIn 0.3s ease;
+            perspective: 1000px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px) translateZ(0); }
+            to { opacity: 1; transform: translateY(0) translateZ(10px); }
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message-content {
+            max-width: 80%;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .user .message-content {
+            background-color: var(--user-bubble);
+            border-top-right-radius: 0;
+            transform: translateZ(5px) rotateX(2deg);
+            box-shadow: var(--card-shadow);
+        }
+
+        .ai .message-content {
+            background-color: var(--ai-bubble);
+            border-top-left-radius: 0;
+            transform: translateZ(5px) rotateX(-2deg);
+            box-shadow: var(--card-shadow);
+        }
+
+        .message img {
+            max-width: 100%;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        .input-container {
+            display: flex;
+            align-items: center;
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 10px 20px;
+            box-shadow: var(--card-shadow);
+            transform: translateZ(15px); /* 3D Effect */
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+        }
+        
+        .input-container:focus-within {
+            transform: translateZ(20px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .input-area {
+            flex: 1;
+            display: flex;
+            align-items: center;
+        }
+
+        #userInput {
+            flex: 1;
+            border: none;
+            padding: 15px 10px;
+            font-size: 16px;
+            outline: none;
+            background: transparent;
+        }
+
+        .input-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .action-icon {
+            color: var(--primary-color);
+            cursor: pointer;
+            font-size: 20px;
+            transition: all 0.2s ease;
+        }
+
+        .action-icon:hover {
+            color: var(--secondary-color);
+        }
+
+        .send-btn {
+            padding: 10px 20px;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .image-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .preview-container {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .preview-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .remove-image {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .typing-indicator {
+            display: none;
+            margin-top: 10px;
+            margin-bottom: 20px;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            animation: typingAnimation 1.4s infinite ease-in-out both;
+        }
+
+        .typing-dot:nth-child(1) { animation-delay: 0s; }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typingAnimation {
+            0%, 100% { transform: scale(0.7); opacity: 0.5; }
+            50% { transform: scale(1); opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            .app-container {
+                padding: 10px;
+            }
+
+            .message-content {
+                max-width: 90%;
+            }
+        }
+
+        /* Code block styling */
+        pre {
+            background-color: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+
+        code {
+            font-family: 'Courier New', monospace;
+        }
+
+        /* Markdown rendering */
+        .markdown h1, .markdown h2, .markdown h3 {
+            margin-top: 10px;
+            margin-bottom: 5px;
+        }
+
+        .markdown p {
+            margin-bottom: 10px;
+        }
+
+        .markdown ul, .markdown ol {
+            margin-left: 20px;
+            margin-bottom: 10px;
+        }
+
+        /* Image Gallery Styles */
+        .image-gallery {
+            padding: 20px;
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            margin-bottom: 20px;
+            transform: translateZ(10px);
+            transition: transform 0.3s ease;
+            min-height: 400px;
+        }
+        
+        .section-title {
+            font-size: 20px;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            font-weight: 600;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 50%;
+            height: 3px;
+            background-color: var(--primary-color);
+            border-radius: 3px;
+        }
+        
+        .section-description {
+            margin-bottom: 20px;
+            color: var(--text-color);
+            opacity: 0.8;
+        }
+        
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .gallery-item {
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            transform: translateZ(5px);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .gallery-item:hover {
+            transform: translateZ(15px) scale(1.05);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        .gallery-item img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+        
+        /* Settings Styles */
+        .settings-container {
+            padding: 20px;
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            transform: translateZ(10px);
+            transition: transform 0.3s ease;
+            min-height: 400px;
+        }
+        
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        /* Switch Toggle */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+        
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+        }
+        
+        input:checked + .slider {
+            background-color: var(--primary-color);
+        }
+        
+        input:focus + .slider {
+            box-shadow: 0 0 1px var(--primary-color);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        
+        .slider.round {
+            border-radius: 34px;
+        }
+        
+        .slider.round:before {
+            border-radius: 50%;
+        }
+        
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 15px 0;
+            margin-top: 20px;
+            color: var(--text-color);
+            opacity: 0.7;
+            font-size: 14px;
+        }
+        
+        .markdown a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .markdown a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <div class="logo animate__animated animate__bounceIn">
+                <i class="fas fa-robot"></i>
+                <span>AI Chat</span>
+            </div>
+            <div class="actions">
+                <button id="resetBtn" class="btn btn-outline">
+                    <i class="fas fa-sync-alt"></i>
+                    Reset Chat
+                </button>
+                <button id="themeToggle" class="btn btn-icon">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </header>
+        
+        <div class="tabs-container">
+            <div class="tab active" data-tab="chat">
+                <i class="fas fa-comment-dots"></i>
+                <span>Chat</span>
+            </div>
+            <div class="tab" data-tab="image">
+                <i class="fas fa-image"></i>
+                <span>Image</span>
+            </div>
+            <div class="tab" data-tab="settings">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </div>
+        </div>
+        
+        <div class="tab-content" id="chatTab">
+            <div class="chat-container" id="chatContainer">
+                <div class="message ai">
+                    <div class="message-content markdown">
+                        <p>Hello! I'm your AI assistant. I can help with answering questions, generating content, or analyzing images. How can I assist you today?</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="tab-content hidden" id="imageTab">
+            <div class="image-gallery">
+                <h3 class="section-title">Image Gallery</h3>
+                <p class="section-description">Upload and process images here. All processed images will appear in the gallery.</p>
+                <div id="imageGalleryContainer" class="gallery-grid"></div>
+            </div>
+        </div>
+        
+        <div class="tab-content hidden" id="settingsTab">
+            <div class="settings-container">
+                <h3 class="section-title">Settings</h3>
+                <div class="setting-item">
+                    <span>Dark Mode</span>
+                    <label class="switch">
+                        <input type="checkbox" id="darkModeToggle">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <span>Animations</span>
+                    <label class="switch">
+                        <input type="checkbox" id="animationsToggle" checked>
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <span>3D Effects</span>
+                    <label class="switch">
+                        <input type="checkbox" id="effects3dToggle" checked>
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="typing-indicator" id="typingIndicator">
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+        </div>
+
+        <div id="imagePreviewArea" class="image-preview"></div>
+
+        <div class="input-container">
+            <div class="input-area">
+                <input type="text" id="userInput" placeholder="Type your message here...">
+            </div>
+            <div class="input-actions">
+                <label for="fileInput" class="action-icon" title="Upload Image">
+                    <i class="fas fa-image"></i>
+                </label>
+                <input type="file" id="fileInput" accept="image/*">
+                <button id="sendBtn" class="btn send-btn">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>© 2025 AI Chat - Multimodal Experience</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.7.2/vanilla-tilt.min.js"></script>
+    <script>
+        // DOM Elements
+        const chatContainer = document.getElementById('chatContainer');
+        const userInput = document.getElementById('userInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const fileInput = document.getElementById('fileInput');
+        const imagePreviewArea = document.getElementById('imagePreviewArea');
+        const typingIndicator = document.getElementById('typingIndicator');
+        const themeToggle = document.getElementById('themeToggle');
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const animationsToggle = document.getElementById('animationsToggle');
+        const effects3dToggle = document.getElementById('effects3dToggle');
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        // Variables
+        let currentImage = null;
+
+        // Initialization
+        document.addEventListener('DOMContentLoaded', () => {
+            userInput.focus();
+            initApp();
+        });
+        
+        // Initialize app features
+        function initApp() {
+            // Check for saved theme preference
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            if (savedTheme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                darkModeToggle.checked = true;
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+            }
+            
+            // Initialize 3D effects
+            if (localStorage.getItem('3dEffects') !== 'false') {
+                apply3DEffects();
+            } else {
+                effects3dToggle.checked = false;
+            }
+            
+            // Set animations toggle based on saved preference
+            if (localStorage.getItem('animations') === 'false') {
+                document.body.classList.add('no-animations');
+                animationsToggle.checked = false;
+            }
+            
+            // Initialize tabs
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabId = tab.getAttribute('data-tab');
+                    activateTab(tabId);
+                });
+            });
+            
+            // Event listeners for settings
+            themeToggle.addEventListener('click', toggleTheme);
+            darkModeToggle.addEventListener('change', toggleTheme);
+            animationsToggle.addEventListener('change', toggleAnimations);
+            effects3dToggle.addEventListener('change', toggle3DEffects);
+        }
+
+        // Event Listeners
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        sendBtn.addEventListener('click', sendMessage);
+        resetBtn.addEventListener('click', resetChat);
+        fileInput.addEventListener('change', handleFileUpload);
+        
+        // Tab and Theme Functions
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            // Update toggle button icon and checkbox
+            themeToggle.innerHTML = newTheme === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+            darkModeToggle.checked = newTheme === 'dark';
+            
+            // Add animation effect to the theme change
+            document.body.classList.add('theme-transition');
+            setTimeout(() => {
+                document.body.classList.remove('theme-transition');
+            }, 1000);
+        }
+        
+        function toggleAnimations() {
+            const useAnimations = animationsToggle.checked;
+            localStorage.setItem('animations', useAnimations);
+            
+            if (useAnimations) {
+                document.body.classList.remove('no-animations');
+            } else {
+                document.body.classList.add('no-animations');
+            }
+        }
+        
+        function toggle3DEffects() {
+            const use3DEffects = effects3dToggle.checked;
+            localStorage.setItem('3dEffects', use3DEffects);
+            
+            if (use3DEffects) {
+                apply3DEffects();
+            } else {
+                remove3DEffects();
+            }
+        }
+        
+        function apply3DEffects() {
+            // Apply the 3D tilt effect to cards and buttons
+            VanillaTilt.init(document.querySelectorAll('.message-content'), {
+                max: 5,
+                speed: 400,
+                glare: true,
+                'max-glare': 0.2,
+                scale: 1.03
+            });
+            
+            VanillaTilt.init(document.querySelectorAll('.btn:not(.send-btn)'), {
+                max: 10,
+                speed: 400,
+                scale: 1.05
+            });
+        }
+        
+        function remove3DEffects() {
+            // Remove vanilla tilt instances
+            const tiltElements = document.querySelectorAll('.message-content, .btn:not(.send-btn)');
+            tiltElements.forEach(element => {
+                if (element.vanillaTilt) {
+                    element.vanillaTilt.destroy();
+                }
+            });
+        }
+        
+        function activateTab(tabId) {
+            // Update active tab
+            tabs.forEach(t => {
+                if (t.getAttribute('data-tab') === tabId) {
+                    t.classList.add('active');
+                } else {
+                    t.classList.remove('active');
+                }
+            });
+            
+            // Show active tab content
+            tabContents.forEach(content => {
+                if (content.id === tabId + 'Tab') {
+                    content.classList.remove('hidden');
+                    content.classList.add('animate__animated', 'animate__fadeIn');
+                    setTimeout(() => {
+                        content.classList.remove('animate__animated', 'animate__fadeIn');
+                    }, 1000);
+                } else {
+                    content.classList.add('hidden');
+                }
+            });
+        }
+
+        // Functions
+        function sendMessage() {
+            const message = userInput.value.trim();
+            if (message === '' && !currentImage) return;
+
+            // Add user message to chat
+            addMessageToChat('user', message, currentImage);
+            
+            // Clear input and image
+            userInput.value = '';
+            
+            // Show typing indicator
+            typingIndicator.style.display = 'flex';
+            
+            // Prepare data for API call
+            const data = { message };
+            if (currentImage) {
+                data.image = currentImage;
+            }
+            
+            // Send request to server
+            fetch('/api/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => {
+                // Check if the response is ok (status in the range 200-299)
+                if (!response.ok) {
+                    return response.json().then(errorData => {
+                        throw { status: response.status, data: errorData };
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Hide typing indicator
+                typingIndicator.style.display = 'none';
+                
+                // Add AI response to chat
+                addMessageToChat('ai', data.response);
+                
+                // Clear the image preview
+                clearImagePreview();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                typingIndicator.style.display = 'none';
+                
+                if (error.data && error.data.error) {
+                    // Server returned an error message
+                    if (error.status === 429 || error.data.error.includes('API quota exceeded')) {
+                        addMessageToChat('ai', `⚠️ ${error.data.error}`);
+                    } else {
+                        addMessageToChat('ai', `Sorry, there was an error: ${error.data.error}`);
+                    }
+                } else {
+                    // Network error or other client-side error
+                    addMessageToChat('ai', 'Sorry, there was an error connecting to the server. Please check your connection and try again.');
+                }
+                
+                clearImagePreview();
+            });
+        }
+
+        function addMessageToChat(sender, message, image = null) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', sender);
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.classList.add('message-content');
+            
+            if (sender === 'ai') {
+                // Parse markdown for AI messages
+                contentDiv.classList.add('markdown');
+                contentDiv.innerHTML = marked.parse(message);
+            } else {
+                contentDiv.textContent = message;
+                
+                // Add image if provided
+                if (image) {
+                    const img = document.createElement('img');
+                    img.src = image;
+                    contentDiv.appendChild(img);
+                    
+                    // Also add to image gallery
+                    addToImageGallery(image);
+                }
+            }
+            
+            messageDiv.appendChild(contentDiv);
+            chatContainer.appendChild(messageDiv);
+            
+            // Scroll to bottom
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+            
+            // Apply 3D effects if enabled
+            if (effects3dToggle && effects3dToggle.checked) {
+                VanillaTilt.init(contentDiv, {
+                    max: 5,
+                    speed: 400,
+                    glare: true,
+                    'max-glare': 0.2,
+                    scale: 1.03
+                });
+            }
+        }
+        
+        function addToImageGallery(imageSrc) {
+            const galleryContainer = document.getElementById('imageGalleryContainer');
+            const galleryItem = document.createElement('div');
+            galleryItem.className = 'gallery-item animate__animated animate__fadeIn';
+            
+            const img = document.createElement('img');
+            img.src = imageSrc;
+            img.alt = 'Processed image';
+            
+            galleryItem.appendChild(img);
+            galleryContainer.appendChild(galleryItem);
+            
+            // Apply 3D effects if enabled
+            if (effects3dToggle && effects3dToggle.checked) {
+                VanillaTilt.init(galleryItem, {
+                    max: 10,
+                    speed: 400,
+                    glare: true,
+                    'max-glare': 0.3
+                });
+            }
+        }
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                currentImage = e.target.result;
+                displayImagePreview(currentImage);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function displayImagePreview(imageSrc) {
+            // Clear previous previews
+            imagePreviewArea.innerHTML = '';
+            
+            // Create preview container
+            const previewContainer = document.createElement('div');
+            previewContainer.classList.add('preview-container');
+            
+            // Create image element
+            const img = document.createElement('img');
+            img.src = imageSrc;
+            
+            // Create remove button
+            const removeBtn = document.createElement('div');
+            removeBtn.classList.add('remove-image');
+            removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+            removeBtn.addEventListener('click', clearImagePreview);
+            
+            // Append elements
+            previewContainer.appendChild(img);
+            previewContainer.appendChild(removeBtn);
+            imagePreviewArea.appendChild(previewContainer);
+        }
+
+        function clearImagePreview() {
+            imagePreviewArea.innerHTML = '';
+            currentImage = null;
+            fileInput.value = '';
+        }
+
+        function resetChat() {
+            // Clear chat UI
+            chatContainer.innerHTML = '';
+            
+            // Add welcome message
+            addMessageToChat('ai', 'Hello! I\'m your AI assistant. I can help with answering questions, generating content, or analyzing images. How can I assist you today?');
+            
+            // Clear image preview
+            clearImagePreview();
+            
+            // Reset conversation on server
+            fetch('/api/reset', {
+                method: 'POST',
+            });
+        }
+    </script>
+</body>
+</html>
